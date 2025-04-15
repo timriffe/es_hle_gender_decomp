@@ -15,35 +15,9 @@ dec <-
                        expectancy = "h", 
                        interval = 2)) 
 
-expectancies <-
-  dat |> 
-  unite(transition, from, to, sep="") |> 
-  filter(adjusted == "yes") |> 
-  rename(p = prob) |> 
-  group_by(time, health_var, sex) |> 
-  summarize(le = f1t(data = pick(everything()), 
-                      expectancy = "t",
-                      init = c(H=1,U=0),
-                      interval = 2),
-            hle = f1t(data = pick(everything()), 
-                     expectancy = "h",
-                     init = c(H=1,U=0),
-                     interval = 2),
-            .groups = "drop") 
 
-expectancies |> 
-  ggplot(aes(x = time, y = le, color = sex)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~health_var) +
-  theme_minimal()
 
-expectancies |> 
-  ggplot(aes(x = time, y = hle, color = sex)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~health_var) +
-  theme_minimal()
+
 
 
 
