@@ -22,7 +22,7 @@ expectancies <-
             .groups = "drop") 
 
 
-
+# LE (just one)
 expectancies |> 
   group_by(sex,time) |> 
   summarize(le = mean(le)) |> 
@@ -37,6 +37,7 @@ expectancies |>
         strip.text = element_text(size=14)) +
   guides(color = "none")
 
+# HLE
 expectancies |> 
   ggplot(aes(x = time, y = hle, color = sex)) +
   geom_point() +
@@ -49,7 +50,7 @@ expectancies |>
         strip.text = element_text(size=14)) +
   guides(color = "none")
 
-
+# DLE
 expectancies |> 
   ggplot(aes(x = time, y = le-hle, color = sex)) +
   geom_point() +
@@ -61,3 +62,60 @@ expectancies |>
         axis.text = element_text(size=12),
         strip.text = element_text(size=14)) +
   guides(color = "none")
+
+# proportion
+expectancies |> 
+  ggplot(aes(x = time, y = hle/le, color = sex)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~health_var) +
+  theme_minimal() +
+  labs(y = "proportion healthy") +
+  theme(axis.title = element_text(size=14),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14)) +
+  guides(color = "none")
+
+# difference HLE
+expectancies |> 
+  select(health_var,time,sex,hle) |> 
+  pivot_wider(names_from = sex, values_from = hle) |> 
+  mutate(`HLE(women-men)` = female - male) |> 
+  ggplot(aes(x = time, y = `HLE(women-men)`)) +
+  geom_hline(yintercept = 0, 
+             color = "red", 
+             linewidth=.5,
+             alpha=.5)+
+  geom_point() +
+  geom_line() +
+  facet_wrap(~health_var) +
+  theme_minimal() +
+  labs(y = "difference in HLE (women-men)") +
+  theme(axis.title = element_text(size=14),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14)) +
+  guides(color = "none") 
+
+expectancies |> 
+  mutate(ule = le-hle) |> 
+  select(health_var,time,sex,ule) |>
+  pivot_wider(names_from = sex, values_from = ule) |> 
+  mutate(`ULE(women-men)` = female - male) |> 
+  ggplot(aes(x = time, y = `ULE(women-men)`)) +
+  geom_hline(yintercept = 0, 
+             color = "red", 
+             linewidth=.5,
+             alpha=.5)+
+  geom_point() +
+  geom_line() +
+  facet_wrap(~health_var) +
+  theme_minimal() +
+  labs(y = "difference in HLE (women-men)") +
+  theme(axis.title = element_text(size=14),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14)) +
+  guides(color = "none") 
+
+
+
+

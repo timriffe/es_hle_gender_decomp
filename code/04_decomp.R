@@ -5,7 +5,7 @@ source("code/01_functions.R")
 dat <- read_csv("data/share_2_year_age_adj.csv.gz")|> 
   select(-1)
 
-dec <-
+dech <-
   dat |> 
   unite(transition, from, to, sep="") |> 
   filter(adjusted == "yes") |> 
@@ -15,7 +15,15 @@ dec <-
                        expectancy = "h", 
                        interval = 2)) 
 
-
+decu <-
+  dat |> 
+  unite(transition, from, to, sep="") |> 
+  filter(adjusted == "yes") |> 
+  group_by(time, health_var) |> 
+  group_modify(~do_dec(data=.x,
+                       init = c(H=1,U=0), 
+                       expectancy = "u", 
+                       interval = 2))
 
 
 
