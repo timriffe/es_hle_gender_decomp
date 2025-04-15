@@ -8,8 +8,10 @@ tr <- dat |>
          time == 2013,
          adjusted == "yes",
          sex == "female")
-tr
 
+init <- c(H = 1, U = 0)
+lh   <- rep(0,length(age))
+lu   <- rep(0,length(age))
 
 
 

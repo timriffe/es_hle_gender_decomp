@@ -42,7 +42,12 @@ expectancies |>
   geom_point() +
   geom_line() +
   facet_wrap(~health_var) +
-  theme_minimal()
+  theme_minimal() +
+  labs(y = "healthy life expectancy") +
+  theme(axis.title = element_text(size=14),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14)) +
+  guides(color = "none")
 
 
 expectancies |> 
@@ -50,4 +55,9 @@ expectancies |>
   geom_point() +
   geom_line() +
   facet_wrap(~health_var) +
-  theme_minimal()
+  theme_minimal() +
+  labs(y = "unhealthy life expectancy") +
+  theme(axis.title = element_text(size=14),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14)) +
+  guides(color = "none")
