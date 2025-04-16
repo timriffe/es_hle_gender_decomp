@@ -110,7 +110,7 @@ expectancies |>
   geom_line() +
   facet_wrap(~health_var) +
   theme_minimal() +
-  labs(y = "difference in HLE (women-men)") +
+  labs(y = "difference in ULE (women-men)") +
   theme(axis.title = element_text(size=14),
         axis.text = element_text(size=12),
         strip.text = element_text(size=14)) +
