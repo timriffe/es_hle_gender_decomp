@@ -11,10 +11,10 @@ do_dec <- function(data, init, expectancy ="h", interval = 2){
   trd <- tr |> 
     select(age, transition, p)
   s2t(data = trd,
-      expectancy = "h",
+      expectancy = expectancy,
       interval = interval) |> 
-    mutate(age = age + 50)
-    left_join(tr, sen, by = join_by(age, transition)) |> 
+    mutate(age = age + 50) |> 
+    right_join(tr, by = join_by(age, transition)) |> 
     filter(!is.na(effect)) |> 
     mutate(dec = delta * effect)
 }
