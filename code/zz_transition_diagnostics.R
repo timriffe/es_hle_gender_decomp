@@ -1,4 +1,6 @@
 library(tidyverse)
+dat <- read_csv("data/share_2_year_age_adj.csv.gz")|> 
+  select(-1)
 
 
 dat |> 
@@ -12,7 +14,7 @@ dat |>
   scale_y_log10() +
   labs(title = "very low mortality bias, impressive")
 
-
+# all transitions for a given year
 dat |> 
   filter(from != to,
          adjusted == "yes") |> 
@@ -30,6 +32,19 @@ dat |>
         strip.text = element_text(size=14)) +
   facet_wrap(~health_var)
 
+# look at mortality rate ratios
+# TR: clearly, time is in the model: time trends are just very consistent.
+dat |> 
+  filter(from != to,
+         adjusted == "yes",
+         to == "D") |> 
+  unite(transition, from, to, sep = "") |> 
+  pivot_wider(names_from = transition, values_from = prob) |> 
+  ggplot(aes(x = age, y = UD/HD, linetype = sex, color = time, groups = interaction(sex,time))) +
+  geom_line() +
+  facet_wrap(~health_var) +
+  theme_minimal() 
+  
 
 
 dat |> 
