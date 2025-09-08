@@ -2,25 +2,45 @@
 source("code/00_setup.R")
 
 # dat <- local(get(load("data/final_result.RData")))
-dat <- read_csv("data/share_2_year_age_adj.csv.gz")|> 
+dat <- read_csv("data/share_2_year_age_adj.csv.gz") |> 
   select(-1)
+dat <- read_csv("data/final_results_prelim.csv.gz")|> 
+  select(-1)
+
+# plot reminds me we need to switch SHARE estimation to msm procedure
+dat |> 
+  filter(adjusted == "yes", prob_type == "1_year", from != to, time == 2015, health_var == 
+      "adl") |> 
+  ggplot(aes(x = age, y = prob, color = to, linetype = time_multinom)) +
+  geom_line() +
+  facet_wrap(sex~from) +
+  scale_y_log10()
 
 expectancies <-
   dat |> 
   unite(transition, from, to, sep="") |> 
-  filter(adjusted == "yes") |> 
+  filter(adjusted == "yes", prob_type = "1_year") |> 
   rename(p = prob) |> 
-  group_by(time, health_var, sex) |> 
+  group_by(time, health_var, sex, prob_type, time_multinom) |> 
   summarize(le = f1t(data = pick(everything()), 
                      expectancy = "t",
                      init = c(H=1,U=0),
-                     interval = 2),
+                     interval = if_else(prob_type[1] == "1_year",1,2)),
             hle = f1t(data = pick(everything()), 
                       expectancy = "h",
                       init = c(H=1,U=0),
-                      interval = 2),
+                      interval = if_else(prob_type[1] == "1_year",1,2)),
             .groups = "drop") 
-
+expectancies |> 
+  filter(health_var !="chronic") |> 
+  ggplot(aes(x=time, y = hle, color = prob_type, linetype = time_multinom)) +
+  geom_line() +
+  facet_grid(vars(health_var),vars(sex)) + 
+  theme_minimal() +
+  theme(axis.title = element_text(size=14),
+                axis.text = element_text(size=12),
+                strip.text = element_text(size=14),
+        panel.spacing.x = unit(.5,"cm"))
 
 # LE (just one)
 expectancies |> 
