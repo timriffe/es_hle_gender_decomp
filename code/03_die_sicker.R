@@ -3,7 +3,7 @@ source("code/00_setup.R")
 dat <- read_csv("data/share_2_year_age_adj.csv.gz")|> 
   select(-1)
 dxs <- 
-dat |> 
+  dat |> 
   filter(adjusted == "yes") |> 
   unite(transition,from,to,sep="") |> 
   group_by(health_var, time, sex) |> 
@@ -16,7 +16,7 @@ dxs |>
   filter(time == 2015,
          health_var == "adl") |> 
   ggplot(aes(x = age, y = dx, color = state, linetype = sex)) +
-  geom_line() +
+  geom_line(width = 1) +
   theme_minimal() +
   labs(y = "lifetable deaths (proportion)") +
   scale_color_manual(values = c(H = "#23a65e",U = "#81278f")) +
@@ -40,5 +40,6 @@ dxs |>
   theme_minimal() +
   theme(axis.title = element_text(size=14),
         axis.text = element_text(size=12),
-        strip.text = element_text(size=14)) +
+        strip.text = element_text(size=14),
+        panel.spacing.x = unit(2, "lines")) +
   labs(y = "deaths unhealthy (proportion)")
