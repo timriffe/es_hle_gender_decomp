@@ -2,7 +2,7 @@
 # a wrapper to do the decomposition, here with 
 # initial conditions hard-coded to 100% healthy.
 # this can be relaxed
-do_dec <- function(data, init, expectancy ="h", interval = 2){
+do_dec <- function(data, init, expectancy ="h", interval = 2, age_from = 50){
   tr <- 
     data |> 
     pivot_wider(names_from = sex, values_from = prob) |> 
@@ -13,7 +13,7 @@ do_dec <- function(data, init, expectancy ="h", interval = 2){
   s2t(data = trd,
       expectancy = expectancy,
       interval = interval) |> 
-    mutate(age = age + 50) |> 
+    mutate(age = age + age_from) |> 
     right_join(tr, by = join_by(age, transition)) |> 
     filter(!is.na(effect)) |> 
     mutate(dec = delta * effect)
