@@ -28,15 +28,74 @@ expectancies <-
   unite(transition, from, to, sep="") |> 
   rename(p = prob) |> 
   group_by(time, health_var, sex) |> 
-  summarize(le = f1t(data = pick(everything()), 
+  summarize(le = f2t(data = pick(everything()), 
                      expectancy = "t",
                      init = c(H=1,U=0),
                      interval = 1),
-            hle = f1t(data = pick(everything()), 
+            hle = f2t(data = pick(everything()), 
                       expectancy = "h",
                       init = c(H=1,U=0),
                       interval = 1),
-            .groups = "drop") 
+            .groups = "drop") |> 
+  mutate(version = "original")
+expectancies2 <-
+  dat |> 
+  filter(type == "Adjusted",
+         age >= 40) |> 
+  unite(transition, from, to, sep="") |> 
+  mutate(prob = if_else(transition == "HD",
+                        prob * .8,
+                        prob)) |> 
+  rename(p = prob) |> 
+  group_by(time, health_var, sex) |> 
+  summarize(le = f2t(data = pick(everything()), 
+                     expectancy = "t",
+                     init = c(H=1,U=0),
+                     interval = 1),
+            hle = f2t(data = pick(everything()), 
+                      expectancy = "h",
+                      init = c(H=1,U=0),
+                      interval = 1),
+            .groups = "drop") |> 
+  mutate(version = "scenario 1") 
+expectancies2 <-
+  dat |> 
+  filter(type == "Adjusted",
+         age >= 40) |> 
+  unite(transition, from, to, sep="") |> 
+  mutate(prob = if_else(transition == "HU",
+                        prob * .8,
+                        prob)) |> 
+  rename(p = prob) |> 
+  group_by(time, health_var, sex) |> 
+  summarize(le = f2t(data = pick(everything()), 
+                     expectancy = "t",
+                     init = c(H=1,U=0),
+                     interval = 1),
+            hle = f2t(data = pick(everything()), 
+                      expectancy = "h",
+                      init = c(H=1,U=0),
+                      interval = 1),
+            .groups = "drop") |> 
+  mutate(version = "scenario 2") 
+
+
+
+
+bind_rows(expectancies, expectancies2) |> 
+  filter(health_var == "adl")|> 
+  select(-le) |> 
+  pivot_wider(names_from = version, values_from = hle) |> 
+  mutate(chg = `scenario 2` - original)
+
+bind_rows(expectancies, expectancies2) |> 
+  filter(health_var == "adl")|> 
+  pivot_wider(names_from = version, values_from = c(le,hle)) |> 
+  mutate(H_orig = hle_original / le_original,
+         H_2 = `hle_scenario 2` / `le_scenario 2`) |> 
+  select(sex, H_orig, H_2)
+
+
 
 expectancies |> 
   filter(health_var !="chronic") |> 

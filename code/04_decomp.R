@@ -21,11 +21,42 @@ dech <-
                        age_from = 40)) |> 
   mutate(le_type = "DFLE")
 
+dech2 <-
+  dat |> 
+  unite(transition, from, to, sep="") |> 
+  filter(type == "Adjusted",
+         age >= 40,health_var == "adl") |> 
+  mutate(prob = if_else(transition == "HD",
+                        prob * .8,
+                        prob)) |> 
+  group_by(health_var) |> 
+  group_modify(~do_dec(data=.x, 
+                       expectancy = "h", 
+                       interval = 1,
+                       age_from = 40)) |> 
+  mutate(le_type = "DFLE")
+dech$dec |> sum()
+dech2$dec |> sum() /dech$dec |> sum()
+
+dech |> 
+  filter(health_var == "adl") |> 
+  ggplot(aes(x=age,y = effect, color = transition)) +
+  geom_line()
+
 dech |> 
   group_by(transition) |> 
   summarize(dec = sum(dec)) |> 
   group_by(sign(dec)) |> 
   summarize(dec = sum(dec))
+
+dech |> 
+  filter(transition == "UH") |> 
+  ggplot(aes(x=age,y=female/male)) +
+  geom_line() 
+dech |> 
+  filter(transition == "UH") |> 
+  ggplot(aes(x=age,y=dec)) +
+  geom_line() 
 
 decu <-
   dat |> 
@@ -76,9 +107,9 @@ dec_all |>
   mutate(transition = case_match(
     transition,
     "UH" ~ "Recuperación",
-    "HU" ~ "Descapacitación",
-    "UD" ~ "Mortalidad\n(discapacitado)",
-    "HD" ~ "Mortalidad\n(sin descapacidad)",
+    "HU" ~ "Discapacitación",
+    "UD" ~ "Mortalidad\n(con discapacidad)",
+    "HD" ~ "Mortalidad\n(sin discapacidad)",
   )) |> 
   group_by(transition) |> 
   summarize(dec = sum(dec), .groups = "drop") |> 
@@ -87,7 +118,7 @@ dec_all |>
   theme_minimal() +
   coord_flip(clip = "off") +
   labs(x = "",
-       y = "contribución a la brecha\n(meses)") +
+       y = "Contribución a la brecha\n(en meses)") +
   guides(fill = "none") +
   theme(axis.text = element_text(size = 16),
         axis.title = element_text(size = 16),
