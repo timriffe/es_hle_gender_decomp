@@ -179,3 +179,32 @@ decu |>
         panel.spacing.x = unit(2, "lines")) +
   guides(color = "none") 
 
+library(HMDHFDplus)
+mxf <- readHMDweb("ESP","fltper_1x1",password = Sys.getenv("pw"), username = Sys.getenv("us"))
+
+mxf <- mxf |> 
+  filter(Year == 2017,
+         between(Age, 50,110))
+  
+mxf$mx
+
+  
+prev <- read_csv("data/prevalence_SHARE.csv.gz") |> 
+  filter(health_var == "adl",
+         sex == "female",
+         between(age, 50,110),
+         !is.na(prev_gam)) |> pull(prev_gam)
+tibble(prev =prev,mx = mxf$mx, Ra = Ra) |> 
+  write_csv("data/test_data.csv")
+
+
+Ra =
+read_csv("data/adjusted_transition_SHARE.csv.gz") |> 
+  filter(health_var == "adl",
+         sex == "female",
+         to == "D",
+         type == "Adjusted",
+         between(age, 50,110)) |> 
+  pivot_wider(names_from = from, values_from = prob) |> 
+  mutate(Ra = U / H) |> 
+  pull(Ra)
